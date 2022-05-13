@@ -34,5 +34,5 @@ if __name__ == '__main__':
     final_df['SepsisLabel'] = np.array(y_pred_new)
     print('-----------------------------------------')
     print('Writing data to prediction.csv...')
-    final_df.to_csv('prediction.csv', index=False)
+    final_df.to_csv('prediction.csv', index=False, header=False)
     print('Finished successfully!')

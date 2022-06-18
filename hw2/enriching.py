@@ -9,7 +9,7 @@ from tqdm import tqdm
 from PIL import Image, ImageFilter
 
 
-def generate_samples(num, num_samples=10000, sample_ratio=100):
+def generate_train_samples(num, num_samples=10000, sample_ratio=100):
     """
     Generates images for model training
     :param num: experiment number
@@ -84,7 +84,7 @@ def generate_samples(num, num_samples=10000, sample_ratio=100):
                 generated_counter += 1
 
 
-def generate_val_images(num, val_ratio=0.15):
+def generate_val_samples(num, val_ratio=0.15):
     """
     Generates vals from train images
     :param num: experiment number
@@ -131,14 +131,11 @@ def count_images(dir):
     df.to_csv(f'{dir}_img.csv')
 
 
-TRAIN_COUNT = 700
-
-
-def generate_samples2(num, sample_ratio=0.1):
+def generate_train_samples2(num, sample_ratio=0.1, limit=750):
     """
     Generates images for model training
     :param num: experiment number
-    :param num_samples: number of samples to generate
+    :param limit: maximum number of images per class
     :param sample_ratio: number of samples per class
     :return:
     """
@@ -158,9 +155,9 @@ def generate_samples2(num, sample_ratio=0.1):
     orig_train_dir_read = os.path.join("data", f'train')
     train_dir_read = os.path.join("data", f'train{num}')
     val_dir_write = os.path.join("data", f'val{num}')
-
+    print(f'Copying {sample_ratio * 100}% of train images to val folder...')
     # copy images from train to val
-    for cls in tqdm(classes, total=len(classes), ascii=False, ncols=100, desc='Generating...'):
+    for cls in tqdm(classes, total=len(classes), ascii=False, ncols=100, desc='Copying...'):
         path = os.path.join(orig_train_dir_read, cls)
         images = os.listdir(path)
         sampled_images = set(random.sample(images, int(len(images) * sample_ratio)))
@@ -193,7 +190,7 @@ def generate_samples2(num, sample_ratio=0.1):
                 imgObj.save(os.path.join(dir_write, cls, img_name))
                 generated_counter += 1
 
-            if generated_counter > TRAIN_COUNT:
+            if generated_counter > limit:
                 break
             # box blur - 1 image
 
@@ -203,7 +200,7 @@ def generate_samples2(num, sample_ratio=0.1):
             imgObj.save(os.path.join(dir_write, cls, img_name))
             generated_counter += 1
 
-            if generated_counter > TRAIN_COUNT:
+            if generated_counter > limit:
                 break
 
             # rotation - 2
@@ -223,7 +220,7 @@ def generate_samples2(num, sample_ratio=0.1):
                 imgObj.save(os.path.join(dir_write, cls, img_name))
                 generated_counter += 1
 
-            if generated_counter > TRAIN_COUNT:
+            if generated_counter > limit:
                 break
 
             if cls in {'iv', 'vi'}:
@@ -235,18 +232,15 @@ def generate_samples2(num, sample_ratio=0.1):
                     imgObj.save(os.path.join(dir_write, 'vi' if cls == 'iv' else 'iv', img_name))
                     generated_counter += 1
 
-            if generated_counter > TRAIN_COUNT:
+            if generated_counter > limit:
                 break
 
 
-VAL_COUNT = 115
-
-
-def generate_val_images2(num):
+def generate_val_samples2(num, limit=100):
     """
     Generates vals from train images
     :param num: experiment number
-    :param val_ratio: ratio of the val images
+    :param limit: maximum number of images per class
     :return:
     """
     print('Generating Val Images...')
@@ -274,7 +268,7 @@ def generate_val_images2(num):
                 imgObj.save(os.path.join(dir_write, cls, img_name))
                 generated_counter += 1
 
-            if generated_counter > VAL_COUNT:
+            if generated_counter > limit:
                 break
 
             # box blur - 1 image
@@ -285,7 +279,7 @@ def generate_val_images2(num):
             imgObj.save(os.path.join(dir_write, cls, img_name))
             generated_counter += 1
 
-            if generated_counter > VAL_COUNT:
+            if generated_counter > limit:
                 break
 
             # rotation - 2
@@ -305,7 +299,7 @@ def generate_val_images2(num):
                 imgObj.save(os.path.join(dir_write, cls, img_name))
                 generated_counter += 1
 
-            if generated_counter > VAL_COUNT:
+            if generated_counter > limit:
                 break
 
             if cls in {'iv', 'vi'}:
@@ -317,15 +311,15 @@ def generate_val_images2(num):
                     imgObj.save(os.path.join(dir_write, 'vi' if cls == 'iv' else 'iv', img_name))
                     generated_counter += 1
 
-            if generated_counter > VAL_COUNT:
+            if generated_counter > limit:
                 break
 
 
 if __name__ == '__main__':
-    num = 5
+    num = 6
     # generate_samples(num=num, num_samples=10000)
     # generate_val_images(num=num, val_ratio=0.15)
-    generate_samples2(num=num, sample_ratio=0.1)
-    generate_val_images2(num=num)
+    generate_train_samples2(num=num, sample_ratio=0.1, limit=755)
+    generate_val_samples2(num=num, limit=65)
     count_images(dir=f'train{num}')
     count_images(dir=f'val{num}')
